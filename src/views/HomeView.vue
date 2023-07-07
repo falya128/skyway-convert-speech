@@ -1,5 +1,6 @@
 <script setup>
 import { onMounted, ref } from 'vue'
+import axios from 'axios'
 import {
   SkyWayContext,
   SkyWayChannel,
@@ -7,7 +8,6 @@ import {
   LocalAudioStream
 } from '@skyway-sdk/core'
 import skyway from '@/utils/skyway'
-import axios from 'axios'
 
 const tokenString = skyway.generateTokenString()
 const video = await SkyWayStreamFactory.createCameraVideoStream()
@@ -19,6 +19,7 @@ const channel = await SkyWayChannel.FindOrCreate(context, {
 })
 
 const isJoined = ref(false)
+const selectedDialect = ref('標準語')
 
 const messages = ref([])
 const MAX_MESSAGE_LENGTH = 3
@@ -72,6 +73,13 @@ const fetchAudio = async (text) => {
   return Uint8Array.from(Array.prototype.map.call(raw, (x) => x.charCodeAt(0)))
 }
 
+const convertText = async (text) => {
+  const response = await axios.get(import.meta.env.VITE_CONVERT_TEXT_URL, {
+    params: { text, dialect: selectedDialect.value }
+  })
+  return response.data.convertedText
+}
+
 let audioPublication
 onMounted(async () => {
   const SpeechRecognition = window.webkitSpeechRecognition || window.SpeechRecognition
@@ -80,10 +88,12 @@ onMounted(async () => {
   recognition.lang = 'ja-JP'
   recognition.onresult = async (event) => {
     const text = event.results[event.resultIndex][0].transcript
+    if (text === '') return
     console.log({ text })
-    data.write(text)
 
-    const uint8Array = await fetchAudio(text)
+    const convertedText = await convertText(text)
+    data.write(convertedText)
+    const uint8Array = await fetchAudio(convertedText)
     const audioContext = new AudioContext()
     const audioBuffer = await audioContext.decodeAudioData(uint8Array.buffer)
     const source = audioContext.createBufferSource()
@@ -114,11 +124,20 @@ onMounted(async () => {
     <div class="flex items-center justify-center gap-x-6 flex-col md:flex-row">
       <div class="w-4/5 md:w-2/5">
         <video id="local-video" playsinline autoplay muted class="bg-black" />
+        <select
+          class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 mt-5"
+          v-model="selectedDialect"
+        >
+          <option value="標準語">標準語</option>
+          <option value="広島県の方言">広島弁</option>
+          <option value="沖縄県の方言">沖縄弁</option>
+          <option value="秋田県の方言">秋田弁</option>
+        </select>
       </div>
       <div class="mt-4 md:mt-0 w-4/5 md:w-2/5">
         <template v-if="isJoined">
           <video id="remote-video" playsinline autoplay muted class="bg-black" />
-          <audio id="remote-audio" playsinline autoplay muted controls class="mt-4" />
+          <audio id="remote-audio" playsinline autoplay controls class="mt-4" />
         </template>
         <button
           v-else
@@ -130,7 +149,7 @@ onMounted(async () => {
       </div>
     </div>
     <div class="m-6">
-      <div v-for="(message, index) in messages.slice().reverse()" :key="index">
+      <div v-for="(message, index) in messages.slice().reverse()" :key="index" class="my-2">
         {{ message }}
       </div>
     </div>
