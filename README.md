@@ -1,35 +1,37 @@
-# skyway-convert-speech
+# SkyWay Convert Speech
 
-This template should help get you started developing with Vue 3 in Vite.
+## 概要
 
-## Recommended IDE Setup
+Skyway + ChatGPT + Amazon Polly で作成した話した言葉が敬語に変換されるビデオ通話アプリです。
 
-[VSCode](https://code.visualstudio.com/) + [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur) + [TypeScript Vue Plugin (Volar)](https://marketplace.visualstudio.com/items?itemName=Vue.vscode-typescript-vue-plugin).
+https://qiita.com/falya128/items/8ae563059b5d024188ac
 
-## Customize configuration
+## 開始手順
 
-See [Vite Configuration Reference](https://vitejs.dev/config/).
+### 各種ライブラリのインストール
 
-## Project Setup
-
-```sh
+```powershell
+cd skyway-convert-speech
 npm install
 ```
 
-### Compile and Hot-Reload for Development
+### 環境設定
 
-```sh
+```powershell
+cp .env.example .env
+```
+
+以下の箇所を変更
+
+```
+VITE_SKYWAY_APP_ID=[SkyWay コンソールから取得したアプリケーションID]
+VITE_SKYWAY_SECRET_KEY=[SkyWay コンソールから取得したシークレットキー]
+VITE_FETCH_AUDIO_URL=[文字データから音声データを生成するAPIのURL]
+VITE_CONVERT_TEXT_URL=[話した言葉を敬語に変換するAPIのURL]
+```
+
+### 起動
+
+```powershell
 npm run dev
-```
-
-### Compile and Minify for Production
-
-```sh
-npm run build
-```
-
-### Lint with [ESLint](https://eslint.org/)
-
-```sh
-npm run lint
 ```
