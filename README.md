@@ -4,10 +4,12 @@
 
 話した言葉が敬語に変換されるビデオ通話アプリです。  
 SkyWay + ChatGPT + Amazon Polly の技術を用いて実現しています。  
-
-動作するためには、バックエンドのAPIを作成する必要があります。  
-詳しくは下記のURLをご参照ください。  
+全体的な構成についてはこちらのQiita記事をご参照ください。  
 https://qiita.com/falya128/items/8ae563059b5d024188ac
+
+なお、動作するためにはバックエンドのAPIを作成する必要があります。  
+別リポジトリにてAWS CDKプロジェクトを用意しておりますので、必要に応じてご利用ください。  
+https://github.com/falya128/skyway-convert-speech-cdk
 
 ## 開始手順
 
